@@ -1,0 +1,7 @@
+.venv
+.git
+.pytest_cache
+data/raw
+data/interim
+**/*.xlsx
+**/__pycache__

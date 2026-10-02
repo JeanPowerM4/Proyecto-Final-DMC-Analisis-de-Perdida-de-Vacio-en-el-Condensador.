@@ -1,0 +1,10 @@
+{
+  "temperatura_agua_mar": 60.2,
+  "potencia_tv_mw": 170,
+  "potencia_tg11_mw": 160,
+  "potencia_tg12_mw": 155,
+  "presion_eyectores": 150,
+  "presion_vapor_lp": 55,
+  "flujo_fw_lp": 180,
+  "vacio_observado": 1.35
+}

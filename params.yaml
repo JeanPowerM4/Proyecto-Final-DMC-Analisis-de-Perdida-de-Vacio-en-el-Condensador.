@@ -1,0 +1,30 @@
+data:
+  excel_path: "../00_Final_Project/Data_Condensador.xlsx"
+  sheet: "Data Bruta"
+  time_col: "Time"
+  target: "FNX:S1_EV_P.PV"
+  load_col: "FNX:S1_DWATT.PV"
+
+filters:
+  min_tv_mw: 50
+  min_vacuum: 0.4
+  max_vacuum: 5.0
+
+split:
+  train: 0.70
+  val: 0.15
+
+forecast:
+  horizon_steps: 4
+  lags: [1, 2, 4, 8, 96]
+  step_minutes: 15
+
+anomaly:
+  alerta_quantile: 0.75
+  critico_quantile: 0.95
+
+models:
+  random_state: 42
+
+monitoring:
+  psi_bins: 10

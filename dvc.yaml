@@ -1,0 +1,20 @@
+# Etapa reproducible, en la línea del taller de DVC del diplomado.
+# El Excel del historiador no se versiona con Git: es dato de proceso de una
+# central real y pesa más de lo que conviene en el repositorio.
+# Para activar DVC en una copia local:
+#   dvc init
+#   dvc add data/raw/Data_Condensador.xlsx
+stages:
+  train:
+    cmd: python main.py train
+    deps:
+      - src
+      - main.py
+      - params.yaml
+    params:
+      - params.yaml:
+    outs:
+      - artifacts/models
+      - reports/metrics
+      - reports/figures
+      - reports/INFORME.md

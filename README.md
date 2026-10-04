@@ -1,6 +1,6 @@
 # Vacío del condensador de superficie
 
-Proyecto de Jean Piere Cholán para el Diploma Advanced Data Scientist de DMC.
+Proyecto para el Diploma Advanced Data Scientist de DMC.
 El caso es la pérdida de vacío en un ciclo combinado. Este repositorio cubre el **condensador de superficie enfriado por agua de mar**. El aerocondensador es el alcance del otro integrante.
 
 El historiador es de proceso real. No se sube el Excel a Git. El código, las métricas, las figuras y el modelo sí.

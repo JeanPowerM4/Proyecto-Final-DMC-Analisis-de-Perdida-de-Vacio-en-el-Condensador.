@@ -28,3 +28,7 @@ models:
 
 monitoring:
   psi_bins: 10
+
+acc:
+  csv_path: "../00_Final_Project/01_Aerocondensador/DataCentral.csv"
+  rated_mw: 300

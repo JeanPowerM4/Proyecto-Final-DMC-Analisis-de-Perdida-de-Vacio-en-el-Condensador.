@@ -137,10 +137,11 @@ def _importance(estimator, names: list[str]) -> list[dict]:
     ]
 
 
-def _vif(frame: pd.DataFrame) -> list[dict]:
+def _vif(frame: pd.DataFrame, feature_cols: list[str] | None = None) -> list[dict]:
+    feature_cols = FEATURES if feature_cols is None else feature_cols
     import statsmodels.api as sm
 
-    matrix = sm.add_constant(frame[FEATURES].astype(float), has_constant="add")
+    matrix = sm.add_constant(frame[feature_cols].astype(float), has_constant="add")
     rows = []
     for index, name in enumerate(matrix.columns):
         if name == "const":
@@ -172,7 +173,13 @@ def _mann_whitney(left: pd.Series, right: pd.Series) -> dict:
     }
 
 
-def _learning_curves(train: pd.DataFrame, target: str, random_state: int) -> dict:
+def _learning_curves(
+    train: pd.DataFrame,
+    target: str,
+    random_state: int,
+    feature_cols: list[str] | None = None,
+) -> dict:
+    feature_cols = FEATURES if feature_cols is None else feature_cols
     estimators = {
         "ridge": _ridge(),
         "arbol_poco_profundo": DecisionTreeRegressor(max_depth=3, random_state=random_state),
@@ -183,7 +190,7 @@ def _learning_curves(train: pd.DataFrame, target: str, random_state: int) -> dic
     for name, estimator in estimators.items():
         sizes, train_score, val_score = learning_curve(
             estimator,
-            train[FEATURES],
+            train[feature_cols],
             train[target],
             train_sizes=np.linspace(0.2, 1.0, 5),
             cv=splitter,
@@ -199,7 +206,17 @@ def _learning_curves(train: pd.DataFrame, target: str, random_state: int) -> dic
     return curves
 
 
-def run_regression(train, val, test, random_state: int) -> dict:
+def run_regression(
+    train,
+    val,
+    test,
+    random_state: int,
+    feature_cols: list[str] | None = None,
+    baseline_cols: list[str] | None = None,
+    baseline_name: str = "lineal_agua_y_carga",
+) -> dict:
+    feature_cols = FEATURES if feature_cols is None else feature_cols
+    baseline_cols = BASELINE_FEATURES if baseline_cols is None else baseline_cols
     y_name = TARGET_ALIAS
     splits = {"val": val, "test": test}
     rows = []
@@ -217,14 +234,14 @@ def run_regression(train, val, test, random_state: int) -> dict:
         )
 
     baseline = _scaled_linear()
-    baseline.fit(baseline_matrix(train), train[y_name])
+    baseline.fit(baseline_matrix(train, baseline_cols), train[y_name])
     for part_name, frame in {**{"train": train}, **splits}.items():
-        prediction = baseline.predict(baseline_matrix(frame))
+        prediction = baseline.predict(baseline_matrix(frame, baseline_cols))
         if part_name == "train":
             continue
         rows.append(
             {
-                "modelo": "lineal_agua_y_carga",
+                "modelo": baseline_name,
                 "particion": part_name,
                 **regression_scores(frame[y_name], prediction),
             }
@@ -255,14 +272,14 @@ def run_regression(train, val, test, random_state: int) -> dict:
             model = clone(estimator)
         else:
             model = clone(estimator)
-        model.fit(train[FEATURES], train[y_name])
+        model.fit(train[feature_cols], train[y_name])
         fitted[name] = model
         for part_name, frame in splits.items():
             rows.append(
                 {
                     "modelo": name,
                     "particion": part_name,
-                    **regression_scores(frame[y_name], model.predict(frame[FEATURES])),
+                    **regression_scores(frame[y_name], model.predict(frame[feature_cols])),
                 }
             )
 
@@ -278,14 +295,14 @@ def run_regression(train, val, test, random_state: int) -> dict:
         n_jobs=1,
         refit=True,
     )
-    search.fit(train[FEATURES], train[y_name])
+    search.fit(train[feature_cols], train[y_name])
     fitted["xgboost_gridsearch"] = search.best_estimator_
     for part_name, frame in splits.items():
         rows.append(
             {
                 "modelo": "xgboost_gridsearch",
                 "particion": part_name,
-                **regression_scores(frame[y_name], search.predict(frame[FEATURES])),
+                **regression_scores(frame[y_name], search.predict(frame[feature_cols])),
             }
         )
 
@@ -304,12 +321,12 @@ def run_regression(train, val, test, random_state: int) -> dict:
 
     deployed = clone(winner_model)
     train_val = pd.concat([train, val], axis=0)
-    deployed.fit(train_val[FEATURES], train_val[y_name])
-    deployed_test = regression_scores(test[y_name], deployed.predict(test[FEATURES]))
+    deployed.fit(train_val[feature_cols], train_val[y_name])
+    deployed_test = regression_scores(test[y_name], deployed.predict(test[feature_cols]))
 
     signed = {}
     linear = baseline.named_steps["model"]
-    for name, coef in zip(BASELINE_FEATURES, np.ravel(linear.coef_), strict=True):
+    for name, coef in zip(baseline_cols, np.ravel(linear.coef_), strict=True):
         signed[name] = float(coef)
 
     return {
@@ -319,7 +336,7 @@ def run_regression(train, val, test, random_state: int) -> dict:
         "flexible_supera_mediana": flexible_beats_median,
         "mejor_params_xgb": {key: _jsonable(value) for key, value in search.best_params_.items()},
         "mae_cv_xgb": float(-search.best_score_),
-        "importancia": _importance(winner_model, FEATURES),
+        "importancia": _importance(winner_model, feature_cols),
         "coef_linea_base_escalada": signed,
         "baseline_train": baseline,
         "modelo_comparacion": winner_model,
@@ -329,10 +346,21 @@ def run_regression(train, val, test, random_state: int) -> dict:
     }
 
 
-def run_classification(train, val, test, baseline, quantiles: dict, random_state: int) -> dict:
+def run_classification(
+    train,
+    val,
+    test,
+    baseline,
+    quantiles: dict,
+    random_state: int,
+    feature_cols: list[str] | None = None,
+    baseline_cols: list[str] | None = None,
+) -> dict:
+    feature_cols = FEATURES if feature_cols is None else feature_cols
+    baseline_cols = BASELINE_FEATURES if baseline_cols is None else baseline_cols
     frames = {}
     for name, frame in {"train": train, "val": val, "test": test}.items():
-        prediction = baseline.predict(baseline_matrix(frame))
+        prediction = baseline.predict(baseline_matrix(frame, baseline_cols))
         frames[name] = assign_degradation(
             frame,
             prediction,
@@ -341,7 +369,7 @@ def run_classification(train, val, test, baseline, quantiles: dict, random_state
         )
 
     def xy(frame):
-        return frame[FEATURES], frame["clase"]
+        return frame[feature_cols], frame["clase"]
 
     sample_weight = compute_sample_weight("balanced", frames["train"]["clase"])
     models = {
@@ -389,7 +417,7 @@ def run_classification(train, val, test, baseline, quantiles: dict, random_state
     fitted = {}
 
     def predict_labels(name: str, model, frame: pd.DataFrame):
-        prediction = model.predict(frame[FEATURES])
+        prediction = model.predict(frame[feature_cols])
         if name == "xgboost":
             prediction = [int_to_class[int(value)] for value in prediction]
         return prediction
@@ -436,7 +464,14 @@ def run_classification(train, val, test, baseline, quantiles: dict, random_state
     }
 
 
-def run_forecast(operating: pd.DataFrame, params: dict, random_state: int) -> dict:
+def run_forecast(
+    operating: pd.DataFrame,
+    params: dict,
+    random_state: int,
+    feature_cols: list[str] | None = None,
+    preview_points: int = 96 * 7,
+) -> dict:
+    feature_cols = FEATURES if feature_cols is None else feature_cols
     forecast_cfg = params["forecast"]
     lags = list(forecast_cfg["lags"])
     horizon = int(forecast_cfg["horizon_steps"])
@@ -446,13 +481,13 @@ def run_forecast(operating: pd.DataFrame, params: dict, random_state: int) -> di
         horizon=horizon,
         step_minutes=float(forecast_cfg["step_minutes"]),
     )
-    ready = ready_forecast_frame(enriched, lags)
+    ready = ready_forecast_frame(enriched, lags, feature_cols)
     train, val, test = chronological_split(
         ready,
         params["split"]["train"],
         params["split"]["val"],
     )
-    features = forecast_feature_names(lags)
+    features = forecast_feature_names(lags, feature_cols)
     target = "vacio_futuro"
     rows = []
 
@@ -467,7 +502,8 @@ def run_forecast(operating: pd.DataFrame, params: dict, random_state: int) -> di
             )
 
     add_constant_model("persistencia", "vacio_ahora")
-    add_constant_model("persistencia_diaria", "vacio_lag_96")
+    if "vacio_lag_96" in ready.columns:
+        add_constant_model("persistencia_diaria", "vacio_lag_96")
 
     catalog = {
         "ridge_lags": _ridge(),
@@ -521,6 +557,7 @@ def run_forecast(operating: pd.DataFrame, params: dict, random_state: int) -> di
 
     preview = test[["Time", target]].copy()
     preview["prediccion"] = test_prediction
+    preview = preview.tail(preview_points)
     adf_stat, adf_p, *_ = adfuller(
         train["vacio_ahora"].dropna(),
         autolag="AIC",
@@ -533,13 +570,18 @@ def run_forecast(operating: pd.DataFrame, params: dict, random_state: int) -> di
         "horizonte_min": horizon * int(forecast_cfg["step_minutes"]),
         "adf_estadistico": float(adf_stat),
         "adf_p_valor": float(adf_p),
-        "preview_test": preview.tail(96 * 7),
+        "preview_test": preview,
     }
 
 
-def run_clusters(train: pd.DataFrame, random_state: int) -> dict:
+def run_clusters(
+    train: pd.DataFrame,
+    random_state: int,
+    feature_cols: list[str] | None = None,
+) -> dict:
+    feature_cols = FEATURES if feature_cols is None else feature_cols
     scaler = StandardScaler()
-    matrix = scaler.fit_transform(train[FEATURES])
+    matrix = scaler.fit_transform(train[feature_cols])
     sample_size = min(6000, len(matrix))
     sample_index = np.linspace(0, len(matrix) - 1, sample_size, dtype=int)
     sample = matrix[sample_index]
@@ -550,7 +592,7 @@ def run_clusters(train: pd.DataFrame, random_state: int) -> dict:
     best_k = max(scores, key=lambda item: item["silhouette"])["k"]
     model = KMeans(n_clusters=best_k, n_init=10, random_state=random_state)
     labels = model.fit_predict(matrix)
-    profile = train[FEATURES + [TARGET_ALIAS]].copy()
+    profile = train[feature_cols + [TARGET_ALIAS]].copy()
     profile["cluster"] = labels
     medians = profile.groupby("cluster").median(numeric_only=True).reset_index()
     counts = profile["cluster"].value_counts().sort_index()
@@ -562,28 +604,31 @@ def run_clusters(train: pd.DataFrame, random_state: int) -> dict:
     }
 
 
-def run_hypotheses(test_frame: pd.DataFrame) -> dict:
+def run_hypotheses(
+    test_frame: pd.DataFrame,
+    hot_col: str = "temp_condensador",
+    cold_col: str = "temp_agua_mar",
+    exhaust_col: str = EXHAUST_TEMP_ALIAS,
+    contrast_cols: list[str] | None = None,
+) -> dict:
     normal = test_frame["clase"] == "normal"
     critico = test_frame["clase"] == "critico"
     test_frame = test_frame.copy()
-    test_frame["ttd"] = terminal_difference(test_frame)
+    test_frame["ttd"] = terminal_difference(test_frame, hot_col=hot_col, cold_col=cold_col)
     results = {
         "ttd": _mann_whitney(test_frame.loc[normal, "ttd"], test_frame.loc[critico, "ttd"]),
-        "temp_escape": _mann_whitney(
-            test_frame.loc[normal, EXHAUST_TEMP_ALIAS],
-            test_frame.loc[critico, EXHAUST_TEMP_ALIAS],
-        )
-        if EXHAUST_TEMP_ALIAS in test_frame.columns
-        else {},
-        "presion_eyectores": _mann_whitney(
-            test_frame.loc[normal, "presion_eyectores"],
-            test_frame.loc[critico, "presion_eyectores"],
-        ),
-        "temp_agua_mar": _mann_whitney(
-            test_frame.loc[normal, "temp_agua_mar"],
-            test_frame.loc[critico, "temp_agua_mar"],
-        ),
     }
+    if exhaust_col in test_frame.columns:
+        results[exhaust_col] = _mann_whitney(
+            test_frame.loc[normal, exhaust_col],
+            test_frame.loc[critico, exhaust_col],
+        )
+    for column in contrast_cols or ["presion_eyectores", "temp_agua_mar"]:
+        if column in test_frame.columns:
+            results[column] = _mann_whitney(
+                test_frame.loc[normal, column],
+                test_frame.loc[critico, column],
+            )
     return results
 
 

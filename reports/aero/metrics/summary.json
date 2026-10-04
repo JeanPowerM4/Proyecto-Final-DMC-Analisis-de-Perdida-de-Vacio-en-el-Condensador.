@@ -1,0 +1,726 @@
+{
+  "tecnologia": "aerocondensador",
+  "filas_archivo": 51542,
+  "filas_limpias": 35507,
+  "filas_operacion": 35507,
+  "potencia_nominal_mw": 300.0,
+  "inicio": "2012-08-15 08:31:00",
+  "fin": "2013-10-03 16:49:00",
+  "train": 24854,
+  "val": 5326,
+  "test": 5327,
+  "particiones": {
+    "train": {
+      "inicio": "2012-08-15 08:31:00",
+      "fin": "2013-05-23 08:22:00",
+      "vacio": 0.101,
+      "temp_ambiente": 20.117,
+      "potencia_mw": 292.1889999
+    },
+    "val": {
+      "inicio": "2013-05-23 08:23:00",
+      "fin": "2013-05-30 10:41:00",
+      "vacio": 0.095,
+      "temp_ambiente": 18.545,
+      "potencia_mw": 294.4550001
+    },
+    "test": {
+      "inicio": "2013-05-30 10:42:00",
+      "fin": "2013-10-03 16:49:00",
+      "vacio": 0.094,
+      "temp_ambiente": 18.231,
+      "potencia_mw": 294.00200010000003
+    }
+  },
+  "vacio_operacion": {
+    "media": 0.10050905455262342,
+    "mediana": 0.098,
+    "p95": 0.119,
+    "min": 0.076,
+    "max": 0.152
+  },
+  "cf": {
+    "min": 0.895006667,
+    "mediana": 0.97643,
+    "max": 0.99622
+  },
+  "features": [
+    "temp_ambiente",
+    "potencia_mw",
+    "viento",
+    "flujo_bp",
+    "viento_sin",
+    "viento_cos"
+  ],
+  "target": "vacio",
+  "cluster_vars": [
+    "temp_ambiente",
+    "potencia_mw",
+    "vacio"
+  ],
+  "residual_title": "Residual en test (observado − línea ambiente/carga)",
+  "regresion": [
+    {
+      "modelo": "mediana_entrenamiento",
+      "particion": "val",
+      "mae": 0.008463574915508826,
+      "rmse": 0.009985259507655449,
+      "r2": -0.4111866970590057,
+      "mape_pct": 9.269151442081167
+    },
+    {
+      "modelo": "mediana_entrenamiento",
+      "particion": "test",
+      "mae": 0.00863074901445467,
+      "rmse": 0.010197560414535907,
+      "r2": -0.5192519274693683,
+      "mape_pct": 9.397188083485387
+    },
+    {
+      "modelo": "lineal_ambiente_y_carga",
+      "particion": "val",
+      "mae": 0.003215890481705312,
+      "rmse": 0.004458915125105276,
+      "r2": 0.7185999484525945,
+      "mape_pct": 3.3373658088290465
+    },
+    {
+      "modelo": "lineal_ambiente_y_carga",
+      "particion": "test",
+      "mae": 0.003487869493575264,
+      "rmse": 0.005873051272764791,
+      "r2": 0.4960762736842277,
+      "mape_pct": 3.6146941968293786
+    },
+    {
+      "modelo": "ridge",
+      "particion": "val",
+      "mae": 0.003247108065915987,
+      "rmse": 0.004091205529410253,
+      "r2": 0.7630982021641807,
+      "mape_pct": 3.3832480078298706
+    },
+    {
+      "modelo": "ridge",
+      "particion": "test",
+      "mae": 0.003399381833164146,
+      "rmse": 0.004654820610489395,
+      "r2": 0.6834494158013114,
+      "mape_pct": 3.6050500020964735
+    },
+    {
+      "modelo": "arbol",
+      "particion": "val",
+      "mae": 0.003529022353842681,
+      "rmse": 0.004286232517046807,
+      "r2": 0.7399737368987602,
+      "mape_pct": 3.7244770898494752
+    },
+    {
+      "modelo": "arbol",
+      "particion": "test",
+      "mae": 0.003337531946758765,
+      "rmse": 0.004132436714157645,
+      "r2": 0.7505120096229616,
+      "mape_pct": 3.517540567713098
+    },
+    {
+      "modelo": "random_forest",
+      "particion": "val",
+      "mae": 0.0031302980165037997,
+      "rmse": 0.003976309186393088,
+      "r2": 0.7762175344953267,
+      "mape_pct": 3.2905329742930465
+    },
+    {
+      "modelo": "random_forest",
+      "particion": "test",
+      "mae": 0.003261337423654099,
+      "rmse": 0.004028349992450632,
+      "r2": 0.7629218038287608,
+      "mape_pct": 3.4769267683904177
+    },
+    {
+      "modelo": "gbm",
+      "particion": "val",
+      "mae": 0.0031537647307601944,
+      "rmse": 0.003900050972132901,
+      "r2": 0.7847186899746945,
+      "mape_pct": 3.2999931663789575
+    },
+    {
+      "modelo": "gbm",
+      "particion": "test",
+      "mae": 0.0027658600663146215,
+      "rmse": 0.0033652660267383568,
+      "r2": 0.8345464748891378,
+      "mape_pct": 2.944701714033684
+    },
+    {
+      "modelo": "xgboost",
+      "particion": "val",
+      "mae": 0.002979513267735723,
+      "rmse": 0.00373989348270417,
+      "r2": 0.8020369084745846,
+      "mape_pct": 3.108096745643998
+    },
+    {
+      "modelo": "xgboost",
+      "particion": "test",
+      "mae": 0.0026452752806152583,
+      "rmse": 0.0032835420408353962,
+      "r2": 0.8424848306593753,
+      "mape_pct": 2.80260098098958
+    },
+    {
+      "modelo": "xgboost_gridsearch",
+      "particion": "val",
+      "mae": 0.00306388091136762,
+      "rmse": 0.003805975129017989,
+      "r2": 0.7949793277474023,
+      "mape_pct": 3.206183397864794
+    },
+    {
+      "modelo": "xgboost_gridsearch",
+      "particion": "test",
+      "mae": 0.0027163099005205775,
+      "rmse": 0.0033178923816085688,
+      "r2": 0.8391719439437351,
+      "mape_pct": 2.8833820200793814
+    }
+  ],
+  "ganador_regresion": "xgboost",
+  "modelo_flexible": "xgboost",
+  "flexible_supera_mediana": true,
+  "modelo_servido": "xgboost",
+  "baseline_name": "lineal_ambiente_y_carga",
+  "params_xgb": {
+    "model__learning_rate": 0.1,
+    "model__max_depth": 3
+  },
+  "mae_cv_xgb": 0.003306222555757471,
+  "importancia": [
+    {
+      "variable": "potencia_mw",
+      "importancia": 0.4787712097167969
+    },
+    {
+      "variable": "temp_ambiente",
+      "importancia": 0.2664934992790222
+    },
+    {
+      "variable": "viento",
+      "importancia": 0.12861019372940063
+    },
+    {
+      "variable": "viento_sin",
+      "importancia": 0.08232393115758896
+    },
+    {
+      "variable": "flujo_bp",
+      "importancia": 0.02466057986021042
+    },
+    {
+      "variable": "viento_cos",
+      "importancia": 0.019140569493174553
+    }
+  ],
+  "coef_linea_base_escalada": {
+    "temp_ambiente": 0.005099427785474882,
+    "potencia_mw": -0.004967112548489646
+  },
+  "test_modelo_desplegado": {
+    "mae": 0.0023703056907976063,
+    "rmse": 0.003155500545998316,
+    "r2": 0.8545298986368666,
+    "mape_pct": 2.489525630699351
+  },
+  "clasificacion": [
+    {
+      "modelo": "dummy_frecuente",
+      "particion": "val",
+      "accuracy": 0.6879459256477657,
+      "f1_macro": 0.27170930663700404,
+      "f1_weighted": 0.5607639313845191
+    },
+    {
+      "modelo": "dummy_frecuente",
+      "particion": "test",
+      "accuracy": 0.7698516988924348,
+      "f1_macro": 0.2899872719558761,
+      "f1_weighted": 0.6697415819172412
+    },
+    {
+      "modelo": "arbol",
+      "particion": "val",
+      "accuracy": 0.6714232069095005,
+      "f1_macro": 0.5416579733208139,
+      "f1_weighted": 0.6741520015520905
+    },
+    {
+      "modelo": "arbol",
+      "particion": "test",
+      "accuracy": 0.6842500469307302,
+      "f1_macro": 0.6085171787109238,
+      "f1_weighted": 0.7067643636914961
+    },
+    {
+      "modelo": "random_forest",
+      "particion": "val",
+      "accuracy": 0.6995869320315433,
+      "f1_macro": 0.5017577099000311,
+      "f1_weighted": 0.6884568414572035
+    },
+    {
+      "modelo": "random_forest",
+      "particion": "test",
+      "accuracy": 0.7084663037356861,
+      "f1_macro": 0.6476472263431697,
+      "f1_weighted": 0.7246054501977196
+    },
+    {
+      "modelo": "gbm",
+      "particion": "val",
+      "accuracy": 0.667104769057454,
+      "f1_macro": 0.4655850605204592,
+      "f1_weighted": 0.6664087381977648
+    },
+    {
+      "modelo": "gbm",
+      "particion": "test",
+      "accuracy": 0.690257180401727,
+      "f1_macro": 0.6308810157974735,
+      "f1_weighted": 0.7148983785074702
+    },
+    {
+      "modelo": "xgboost",
+      "particion": "val",
+      "accuracy": 0.6826886969583177,
+      "f1_macro": 0.49295107210221084,
+      "f1_weighted": 0.6810831131975341
+    },
+    {
+      "modelo": "xgboost",
+      "particion": "test",
+      "accuracy": 0.6893185657968838,
+      "f1_macro": 0.654642766955692,
+      "f1_weighted": 0.7173799843642401
+    },
+    {
+      "modelo": "adaboost",
+      "particion": "val",
+      "accuracy": 0.6564025535110777,
+      "f1_macro": 0.4926794124113309,
+      "f1_weighted": 0.6672044732132226
+    },
+    {
+      "modelo": "adaboost",
+      "particion": "test",
+      "accuracy": 0.6523371503660597,
+      "f1_macro": 0.6197215198052746,
+      "f1_weighted": 0.6865065275453236
+    }
+  ],
+  "ganador_clasificacion": "arbol",
+  "modelo_matriz": "arbol",
+  "matriz_test": [
+    [
+      3023,
+      1059,
+      19
+    ],
+    [
+      455,
+      446,
+      80
+    ],
+    [
+      51,
+      18,
+      176
+    ]
+  ],
+  "clases": [
+    "normal",
+    "alerta",
+    "critico"
+  ],
+  "conteo_train": {
+    "normal": 18640,
+    "alerta": 4971,
+    "critico": 1243
+  },
+  "umbral_residual": {
+    "alerta": 0.0024516592631095117,
+    "critico": 0.009118432285711405
+  },
+  "pronostico": [
+    {
+      "modelo": "persistencia",
+      "particion": "val",
+      "mae": 0.002960652870883125,
+      "rmse": 0.004106637432219764,
+      "r2": 0.6761405629263331,
+      "mape_pct": 3.0670026411601334
+    },
+    {
+      "modelo": "persistencia",
+      "particion": "test",
+      "mae": 0.002976689976689977,
+      "rmse": 0.004217982372103433,
+      "r2": 0.7658748648280097,
+      "mape_pct": 3.049835535147859
+    },
+    {
+      "modelo": "ridge_lags",
+      "particion": "val",
+      "mae": 0.003097639249925087,
+      "rmse": 0.00412827784743284,
+      "r2": 0.6727183379341629,
+      "mape_pct": 3.2009364718714024
+    },
+    {
+      "modelo": "ridge_lags",
+      "particion": "test",
+      "mae": 0.003120239425440338,
+      "rmse": 0.004140245751132967,
+      "r2": 0.7744251066840434,
+      "mape_pct": 3.1951051751906796
+    },
+    {
+      "modelo": "random_forest_lags",
+      "particion": "val",
+      "mae": 0.004752318981864186,
+      "rmse": 0.005756111544479123,
+      "r2": 0.3637288432896483,
+      "mape_pct": 4.952965947127367
+    },
+    {
+      "modelo": "random_forest_lags",
+      "particion": "test",
+      "mae": 0.00424980221767558,
+      "rmse": 0.005304108621310744,
+      "r2": 0.6297770484052492,
+      "mape_pct": 4.39685775103738
+    },
+    {
+      "modelo": "mlp_ventanas",
+      "particion": "val",
+      "mae": 0.00809433808290551,
+      "rmse": 0.011033823668281352,
+      "r2": -1.337953731643592,
+      "mape_pct": 8.39856187163174
+    },
+    {
+      "modelo": "mlp_ventanas",
+      "particion": "test",
+      "mae": 0.009544601483884162,
+      "rmse": 0.013292131378562508,
+      "r2": -1.3250257689633096,
+      "mape_pct": 10.034385558194854
+    }
+  ],
+  "ganador_pronostico": "persistencia",
+  "pronostico_filas": 22875,
+  "horizonte_min": 60,
+  "adf_estadistico": -5.752245949497519,
+  "adf_p_valor": 5.929486331325934e-07,
+  "clusters": {
+    "silhouette": [
+      {
+        "k": 2,
+        "silhouette": 0.27459479036222506
+      },
+      {
+        "k": 3,
+        "silhouette": 0.28801486708102503
+      },
+      {
+        "k": 4,
+        "silhouette": 0.3013462143304345
+      },
+      {
+        "k": 5,
+        "silhouette": 0.29601637022808536
+      },
+      {
+        "k": 6,
+        "silhouette": 0.29584295868832206
+      }
+    ],
+    "k": 4,
+    "perfil": [
+      {
+        "cluster": 0,
+        "temp_ambiente": 18.797,
+        "potencia_mw": 294.243,
+        "viento": 3.2,
+        "flujo_bp": 34.304,
+        "viento_sin": 0.3826834323650898,
+        "viento_cos": 0.9238795325112867,
+        "vacio": 0.093,
+        "n": 8060
+      },
+      {
+        "cluster": 1,
+        "temp_ambiente": 19.991,
+        "potencia_mw": 290.4969999,
+        "viento": 16.1,
+        "flujo_bp": 33.96033333,
+        "viento_sin": 1.0,
+        "viento_cos": 6.123233995736766e-17,
+        "vacio": 0.107,
+        "n": 3787
+      },
+      {
+        "cluster": 2,
+        "temp_ambiente": 19.551,
+        "potencia_mw": 293.5940001,
+        "viento": 3.2,
+        "flujo_bp": 34.397833335,
+        "viento_sin": -0.9238795325112866,
+        "viento_cos": 0.38268343236509,
+        "vacio": 0.098,
+        "n": 5192
+      },
+      {
+        "cluster": 3,
+        "temp_ambiente": 22.382,
+        "potencia_mw": 289.46999999999997,
+        "viento": 8.0,
+        "flujo_bp": 33.86766667,
+        "viento_sin": 0.0,
+        "viento_cos": 0.7071067811865476,
+        "vacio": 0.111,
+        "n": 7815
+      }
+    ]
+  },
+  "hipotesis": {
+    "ttd": {
+      "n_normal": 4101,
+      "n_critico": 245,
+      "mediana_normal": 26.831000000000003,
+      "mediana_critico": 30.706000000000003,
+      "estadistico": 66.5,
+      "p_valor": 8.894091517212062e-153
+    },
+    "temp_salida_bp": {
+      "n_normal": 4101,
+      "n_critico": 245,
+      "mediana_normal": 44.928,
+      "mediana_critico": 49.494,
+      "estadistico": 9847.0,
+      "p_valor": 4.884443445801055e-147
+    },
+    "temp_ambiente": {
+      "n_normal": 4101,
+      "n_critico": 245,
+      "mediana_normal": 18.294,
+      "mediana_critico": 18.545,
+      "estadistico": 432199.5,
+      "p_valor": 0.00023455284368200014
+    },
+    "viento": {
+      "n_normal": 4101,
+      "n_critico": 245,
+      "mediana_normal": 4.8,
+      "mediana_critico": 22.5,
+      "estadistico": 1767.0,
+      "p_valor": 9.308008355577695e-156
+    },
+    "potencia_mw": {
+      "n_normal": 4101,
+      "n_critico": 245,
+      "mediana_normal": 294.21299999999997,
+      "mediana_critico": 290.391,
+      "estadistico": 925229.0,
+      "p_valor": 7.520589415004002e-109
+    }
+  },
+  "psi": {
+    "temp_ambiente": {
+      "psi": 1.1245452340100288,
+      "banda": "drift"
+    },
+    "potencia_mw": {
+      "psi": 0.5859771488911358,
+      "banda": "drift"
+    },
+    "viento": {
+      "psi": 0.15147247915567463,
+      "banda": "cambio_moderado"
+    },
+    "flujo_bp": {
+      "psi": 1.0967293548120223,
+      "banda": "drift"
+    },
+    "viento_sin": {
+      "psi": 0.241008410607295,
+      "banda": "cambio_moderado"
+    },
+    "viento_cos": {
+      "psi": 0.2798506207447896,
+      "banda": "drift"
+    },
+    "vacio": {
+      "psi": 0.9147122059247876,
+      "banda": "drift"
+    }
+  },
+  "vif": [
+    {
+      "variable": "temp_ambiente",
+      "vif": 1.7256657909372297
+    },
+    {
+      "variable": "potencia_mw",
+      "vif": 2.386934870781845
+    },
+    {
+      "variable": "viento",
+      "vif": 2.1923082592233833
+    },
+    {
+      "variable": "flujo_bp",
+      "vif": 1.3890309812951556
+    },
+    {
+      "variable": "viento_sin",
+      "vif": 1.5344776544952885
+    },
+    {
+      "variable": "viento_cos",
+      "vif": 1.2254813502728072
+    }
+  ],
+  "curvas": {
+    "ridge": {
+      "muestras": [
+        1243,
+        2486,
+        3729,
+        4972,
+        6215
+      ],
+      "mae_train": [
+        0.0014366249735137616,
+        0.001977145628400913,
+        0.002242823847134297,
+        0.002086635896183837,
+        0.002785185108551717
+      ],
+      "mae_val": [
+        0.00491547552957883,
+        0.004721015987371464,
+        0.003975638824645058,
+        0.004000726077701373,
+        0.0036705266294755844
+      ]
+    },
+    "arbol_poco_profundo": {
+      "muestras": [
+        1243,
+        2486,
+        3729,
+        4972,
+        6215
+      ],
+      "mae_train": [
+        0.0011933861898127862,
+        0.0016650541342304063,
+        0.002353259217226259,
+        0.0023126576989211662,
+        0.0029506762191475653
+      ],
+      "mae_val": [
+        0.005731949200953063,
+        0.006599812691116088,
+        0.005263946231276712,
+        0.005666810349464574,
+        0.005938149507461438
+      ]
+    },
+    "arbol_profundo": {
+      "muestras": [
+        1243,
+        2486,
+        3729,
+        4972,
+        6215
+      ],
+      "mae_train": [
+        0.0001626558587332112,
+        0.00016892928304242775,
+        0.0002624614111798672,
+        0.00032868150470580123,
+        0.0004318692122597608
+      ],
+      "mae_val": [
+        0.005745610920013228,
+        0.006317501401427804,
+        0.004970127300774746,
+        0.005572957255721887,
+        0.004773885989749029
+      ]
+    }
+  },
+  "vacio_por_direccion": [
+    {
+      "direccion": "WSW",
+      "vacio": 0.092
+    },
+    {
+      "direccion": "SW",
+      "vacio": 0.092
+    },
+    {
+      "direccion": "ENE",
+      "vacio": 0.094
+    },
+    {
+      "direccion": "NE",
+      "vacio": 0.094
+    },
+    {
+      "direccion": "WNW",
+      "vacio": 0.096
+    },
+    {
+      "direccion": "NNE",
+      "vacio": 0.097
+    },
+    {
+      "direccion": "W",
+      "vacio": 0.099
+    },
+    {
+      "direccion": "ESE",
+      "vacio": 0.099
+    },
+    {
+      "direccion": "N",
+      "vacio": 0.1
+    },
+    {
+      "direccion": "SSW",
+      "vacio": 0.105
+    },
+    {
+      "direccion": "NNW",
+      "vacio": 0.105
+    },
+    {
+      "direccion": "E",
+      "vacio": 0.107
+    },
+    {
+      "direccion": "NW",
+      "vacio": 0.107
+    },
+    {
+      "direccion": "SSE",
+      "vacio": 0.12
+    }
+  ]
+}

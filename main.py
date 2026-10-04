@@ -5,9 +5,11 @@ import json
 
 import pandas as pd
 
-from src.config import load_params
+from src.acc_study import run_acc_study
+from src.config import ROOT, load_params
 from src.data.dictionary import API_FIELDS
 from src.models.inference import load_bundle, score_record
+from src.reporting.comparison import write_comparison_files
 from src.training import run_training
 
 
@@ -24,6 +26,8 @@ def main():
     parser = argparse.ArgumentParser(description="Vacío del condensador de superficie")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("train")
+    sub.add_parser("train-aero")
+    sub.add_parser("compare")
     predict = sub.add_parser("predict")
     predict.add_argument("--data", required=True)
     predict.add_argument("--output", default="reports/predicciones.csv")
@@ -31,6 +35,14 @@ def main():
 
     if args.command == "train":
         run_training(load_params())
+        return
+    if args.command == "train-aero":
+        run_acc_study(load_params())
+        write_comparison_files(ROOT)
+        return
+    if args.command == "compare":
+        path = write_comparison_files(ROOT)
+        print(path)
         return
 
     result = predict_file(args.data)

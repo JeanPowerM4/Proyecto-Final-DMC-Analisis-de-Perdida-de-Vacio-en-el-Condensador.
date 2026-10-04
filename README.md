@@ -14,7 +14,19 @@ Sobre 58,867 puntos con la TV en servicio, de enero 2024 a enero 2026:
 - Esa alarma, en test, coincide con un condensador más caliente: diferencia condensador − agua de mar de 28.2 en operación normal y 35.6 en la clase crítica (Mann-Whitney, p ≈ 0).
 - Hay drift entre entrenamiento y test (PSI del agua de mar 1.52). Conviene no promover un ensemble solo porque ajusta el primer año.
 
-El detalle, las tablas y la lectura de clusters están en `reports/INFORME.md`.
+El detalle del condensador de superficie está en `reports/INFORME.md`.
+
+## Aerocondensador
+
+`DataCentral.csv` repite el mismo estudio sobre la contrapresión `TV_BP_Pout`. La potencia es el factor de capacidad por 300 MW. La temperatura de salida de baja presión no entra al modelo.
+
+En validación gana XGBoost (MAE 0.0030 frente a 0.0085 de la mediana) y también queda primero en el test (MAE 0.0026, MAPE 2.8 %). La línea de ambiente y carga ya explica gran parte (MAPE de test 3.6 %). A una hora vuelve a ganar la persistencia. En el grupo crítico el viento mediano es 22.5 frente a 4.8 en el normal; la temperatura ambiente casi no cambia.
+
+La comparación de las dos tecnologías está en `reports/COMPARACION.md`. El aerocondensador condensa cerca de 98 mbar y el de superficie cerca de 44 mbar. Son plantas y años distintos.
+
+```bash
+.venv\Scripts\python main.py train-aero
+```
 
 ## Qué responde
 

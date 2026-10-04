@@ -74,7 +74,7 @@ def save_figures(summary: dict, test_frame: pd.DataFrame, forecast_preview: pd.D
     ax.hist(test_frame["residual_base"], bins=40, color="#4c78a8", edgecolor="white")
     threshold = summary["umbral_residual"]["critico"]
     ax.axvline(threshold, color="#e45756", linestyle="--", label=f"umbral crítico {threshold:.3f}")
-    ax.set_title("Residual de vacío en test (observado − línea agua/carga)")
+    ax.set_title(summary.get("residual_title", "Residual de vacío en test (observado − línea agua/carga)"))
     ax.set_xlabel("Residual")
     ax.legend()
     plt.tight_layout()
@@ -82,10 +82,11 @@ def save_figures(summary: dict, test_frame: pd.DataFrame, forecast_preview: pd.D
     plt.close()
 
     fig, ax = plt.subplots(figsize=(6, 6))
-    ax.scatter(test_frame[TARGET_ALIAS], test_frame["prediccion"], s=6, alpha=0.25, color="#4c78a8")
+    target = summary.get("target", TARGET_ALIAS)
+    ax.scatter(test_frame[target], test_frame["prediccion"], s=6, alpha=0.25, color="#4c78a8")
     limits = [
-        min(test_frame[TARGET_ALIAS].min(), test_frame["prediccion"].min()),
-        max(test_frame[TARGET_ALIAS].max(), test_frame["prediccion"].max()),
+        min(test_frame[target].min(), test_frame["prediccion"].min()),
+        max(test_frame[target].max(), test_frame["prediccion"].max()),
     ]
     ax.plot(limits, limits, color="#e45756", linewidth=1)
     ax.set_xlabel("Vacío observado")
@@ -128,7 +129,9 @@ def save_figures(summary: dict, test_frame: pd.DataFrame, forecast_preview: pd.D
     plt.savefig(directory / "pronostico_reciente.png", dpi=120)
     plt.close()
 
-    corr = test_frame[FEATURES + [TARGET_ALIAS]].corr(method="spearman")
+    features = summary.get("features") or FEATURES
+    target = summary.get("target", TARGET_ALIAS)
+    corr = test_frame[features + [target]].corr(method="spearman")
     fig, ax = plt.subplots(figsize=(8, 6.5))
     sns.heatmap(corr, cmap="coolwarm", center=0, ax=ax)
     ax.set_title("Spearman en el bloque de test operativo")
@@ -140,7 +143,8 @@ def save_figures(summary: dict, test_frame: pd.DataFrame, forecast_preview: pd.D
     if not profile.empty:
         melted = profile.melt(id_vars=["cluster", "n"], var_name="variable", value_name="mediana")
         fig, ax = plt.subplots(figsize=(10, 4.5))
-        sns.barplot(data=melted[melted["variable"].isin(["temp_agua_mar", "potencia_tv", "vacio"])],
+        shown = summary.get("cluster_vars") or ["temp_agua_mar", "potencia_tv", "vacio"]
+        sns.barplot(data=melted[melted["variable"].isin(shown)],
                     x="variable", y="mediana", hue="cluster", ax=ax)
         ax.set_title(f"Medianas por cluster (k={summary['clusters']['k']})")
         plt.tight_layout()

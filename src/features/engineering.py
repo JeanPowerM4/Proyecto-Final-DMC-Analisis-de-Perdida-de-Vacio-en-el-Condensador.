@@ -73,15 +73,19 @@ def assign_degradation(
     return frame
 
 
-def terminal_difference(df: pd.DataFrame) -> pd.Series:
-    """TTD aproximado: temperatura de condensador menos agua de mar.
+def terminal_difference(
+    df: pd.DataFrame,
+    hot_col: str = CONDENSER_TEMP_ALIAS,
+    cold_col: str = "temp_agua_mar",
+) -> pd.Series:
+    """Diferencia entre la temperatura caliente del condensador y el fluido frío.
 
     No entra al modelo. Sirve para contrastar si el residual de vacío coincide
-    con un condensador más caliente de lo que el agua de mar explica.
+    con un lado caliente más alto de lo que el fluido frío explica.
     """
-    if CONDENSER_TEMP_ALIAS not in df.columns:
+    if hot_col not in df.columns or cold_col not in df.columns:
         return pd.Series(np.nan, index=df.index)
-    return df[CONDENSER_TEMP_ALIAS] - df["temp_agua_mar"]
+    return df[hot_col] - df[cold_col]
 
 
 def add_forecast_columns(
@@ -114,19 +118,24 @@ def add_forecast_columns(
     return frame
 
 
-def forecast_feature_names(lags: list[int]) -> list[str]:
-    return [*FEATURES, *[f"vacio_lag_{lag}" for lag in lags]]
+def forecast_feature_names(lags: list[int], features: list[str] | None = None) -> list[str]:
+    columns = FEATURES if features is None else features
+    return [*columns, *[f"vacio_lag_{lag}" for lag in lags]]
 
 
-def ready_forecast_frame(df: pd.DataFrame, lags: list[int]) -> pd.DataFrame:
+def ready_forecast_frame(
+    df: pd.DataFrame,
+    lags: list[int],
+    features: list[str] | None = None,
+) -> pd.DataFrame:
     ok_cols = [f"ok_lag_{lag}" for lag in lags] + ["ok_futuro"]
     mask = df[ok_cols].all(axis=1) & df["vacio_futuro"].notna()
-    columns = ["Time", "vacio_futuro", "vacio_ahora", *forecast_feature_names(lags)]
+    columns = ["Time", "vacio_futuro", "vacio_ahora", *forecast_feature_names(lags, features)]
     seasonal = "vacio_lag_96"
     if seasonal in df.columns and seasonal not in columns:
         columns.append(seasonal)
     return df.loc[mask, columns].reset_index(drop=True)
 
 
-def baseline_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    return df[BASELINE_FEATURES]
+def baseline_matrix(df: pd.DataFrame, columns: list[str] | None = None) -> pd.DataFrame:
+    return df[BASELINE_FEATURES if columns is None else columns]
